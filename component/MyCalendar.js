@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Text, Button, View} from 'react-native';
 import SyncStorage from 'sync-storage';
+import {connect} from 'react-redux';
 
 const months = [
   'January',
@@ -19,46 +20,37 @@ const months = [
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-function MyCalendar1() {
+function MyCalendar1(props) {
   useEffect(() => {
     (async () => {
       await SyncStorage.init();
     })();
   });
 
-  const fulldate = new Date();
-  const [date, setDate] = useState(fulldate.getDate());
-  const [month, setMonth] = useState(fulldate.getMonth());
-  const [year, setYear] = useState(fulldate.getFullYear());
   function changeMonth(n) {
-    let m = month + n;
-    if (m > 11) {
-      m = 12 - (month + n);
-      setMonth(m);
-    } else {
-      setMonth(m);
-    }
+    props.changeMonth(n);
   }
   function changeYear(n) {
-    let y = year + n;
-    setYear(y);
+    props.changeYear(n);
   }
 
-  var rows = [];
   function _onPress(item) {
     if (!item.match && item !== -1) {
-      setDate(item);
+      props.on_Press(item);
     }
   }
 
   function generateMatrix() {
     const matrix = [];
     matrix[0] = weekDays;
-    const firstDay = new Date(year, month, 1).getDay();
-    let maxDays = nDays[month];
-    if (month === 1) {
+    const firstDay = new Date(props.year, props.month, 1).getDay();
+    let maxDays = nDays[props.month];
+    if (props.month === 1) {
       // February
-      if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
+      if (
+        (props.year % 4 === 0 && props.year % 100 !== 0) ||
+        props.year % 400 === 0
+      ) {
         maxDays += 1;
       }
     }
@@ -80,10 +72,6 @@ function MyCalendar1() {
 
     return matrix;
   }
-
-  // useEffect(() => {
-  //   generateMatrix();
-  // });
 
   const matrix = generateMatrix();
   return (
@@ -109,7 +97,7 @@ function MyCalendar1() {
               fontSize: 18,
               textAlign: 'center',
             }}>
-            {year}
+            {props.year}
           </Text>
           <Button title=">" onPress={() => changeYear(+1)} />
           <Button title=">>" onPress={() => changeMonth(+1)} />
@@ -125,7 +113,7 @@ function MyCalendar1() {
               fontSize: 18,
               textAlign: 'center',
             }}>
-            {months[month]}
+            {months[props.month]}
           </Text>
         </View>
       </View>
@@ -147,7 +135,7 @@ function MyCalendar1() {
                   style={{
                     textAlign: 'center',
                     color: colIndex === 0 ? '#a00' : '#000',
-                    fontWeight: item === date ? 'bold' : null,
+                    fontWeight: item === props.date ? 'bold' : null,
                     backgroundColor: rowIndex % 2 === 0 ? '#ddd' : '#fff',
                     borderWidth: item !== -1 ? 1 : null,
                   }}
@@ -185,4 +173,18 @@ function MyCalendar1() {
   );
 }
 
-export default MyCalendar1;
+const mapStateToProps = state => {
+  console.log(state);
+  return state;
+};
+
+const mapDispatchToProps = dispatch => ({
+  changeMonth: payload => dispatch({type: 'CHANGE_MONTH', payload: payload}),
+  changeYear: payload => dispatch({type: 'CHANGE_YEAR', payload: payload}),
+  on_Press: payload => dispatch({type: 'ON_PRESS', payload: payload}),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(MyCalendar1);
