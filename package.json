@@ -13,6 +13,7 @@
     "@react-native-community/async-storage": "^1.8.1",
     "react": "16.9.0",
     "react-native": "0.61.5",
+    "react-native-paper": "^3.6.0",
     "redux": "^4.0.5"
   },
   "devDependencies": {
@@ -25,7 +26,8 @@
     "metro-react-native-babel-preset": "^0.56.0",
     "react-redux": "^7.2.0",
     "react-test-renderer": "16.9.0",
-    "sync-storage": "^0.4.2"
+    "sync-storage": "^0.4.2",
+    "tcomb-form-native": "^0.6.20"
   },
   "jest": {
     "preset": "react-native"

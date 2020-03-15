@@ -1,7 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {Text, Button, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Text, Button, View, Modal} from 'react-native';
 import SyncStorage from 'sync-storage';
 import {connect} from 'react-redux';
+import ToDo from './ToDo';
 
 const months = [
   'January',
@@ -26,6 +27,11 @@ function MyCalendar1(props) {
       await SyncStorage.init();
     })();
   });
+  const [modalVisible, setModalVisible] = useState(false);
+
+  function setModalVisibled(visible) {
+    setModalVisible(visible);
+  }
 
   function changeMonth(n) {
     props.changeMonth(n);
@@ -74,6 +80,7 @@ function MyCalendar1(props) {
   }
 
   const matrix = generateMatrix();
+
   return (
     <View style={{flex: 1, justifyContent: 'space-around'}}>
       <View
@@ -142,16 +149,43 @@ function MyCalendar1(props) {
                   onPress={() => _onPress(item)}>
                   {item !== -1 ? item : ''}
                 </Text>
-                <View
-                  style={{
-                    backgroundColor: rowIndex % 2 === 0 ? '#ddd' : '#fff',
-                    flex: rowIndex !== 0 ? 1 : null,
-                    borderWidth: item !== -1 ? 1 : null,
-                    borderColor: item !== -1 ? '#ddd' : null,
-                  }}>
+                <View>
                   {item !== -1 && rowIndex !== 0 ? (
-                    <Button title="+" onPress={() => {}} />
+                    <Button
+                      title="+"
+                      onPress={() => {
+                        setModalVisibled(true);
+                      }}
+                    />
                   ) : null}
+
+                  <View>
+                    <Modal
+                      animationType="slide"
+                      transparent={false}
+                      visible={modalVisible}
+                      onRequestClose={() => {
+                        alert('Modal has been closed.');
+                      }}>
+                      <ToDo
+                        date={props.date}
+                        month={props.month}
+                        year={props.year}
+                      />
+                      <Button
+                        title="Hide Modal"
+                        onPress={() => {
+                          setModalVisible(!modalVisible);
+                        }}
+                        style={{
+                          justifyContent: 'center',
+                          marginTop: 50,
+                          padding: 20,
+                          backgroundColor: '#ffffff',
+                        }}
+                      />
+                    </Modal>
+                  </View>
                 </View>
               </View>
             );
@@ -160,7 +194,6 @@ function MyCalendar1(props) {
             <View
               style={{
                 flexDirection: 'row',
-                // padding: 15,
                 justifyContent: 'space-around',
                 alignItems: 'center',
               }}>
@@ -174,7 +207,7 @@ function MyCalendar1(props) {
 }
 
 const mapStateToProps = state => {
-  console.log(state);
+  // console.log(state);
   return state;
 };
 
