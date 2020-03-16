@@ -1,5 +1,6 @@
 let fulldate = new Date();
 const initState = {
+  fulldate: new Date(),
   date: fulldate.getDate(),
   month: fulldate.getMonth(),
   year: fulldate.getFullYear(),
@@ -30,6 +31,13 @@ const rootReducer = (state = initState, action) => {
       return {
         ...state,
         date: action.payload,
+      };
+    case 'UPDATE_TODO':
+      let temp1 = [];
+      temp1 = temp1.concat(state.todo);
+      return {
+        ...state,
+        todo: temp1,
       };
     default:
       return state;

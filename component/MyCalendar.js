@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Text, Button, View, Modal} from 'react-native';
+import React, {useEffect} from 'react';
+import {Text, Button, View} from 'react-native';
 import SyncStorage from 'sync-storage';
 import {connect} from 'react-redux';
 import ToDo from './ToDo';
@@ -27,11 +27,6 @@ function MyCalendar1(props) {
       await SyncStorage.init();
     })();
   });
-  const [modalVisible, setModalVisible] = useState(false);
-
-  function setModalVisibled(visible) {
-    setModalVisible(visible);
-  }
 
   function changeMonth(n) {
     props.changeMonth(n);
@@ -44,6 +39,10 @@ function MyCalendar1(props) {
     if (!item.match && item !== -1) {
       props.on_Press(item);
     }
+  }
+
+  function updateTodo() {
+    props.updateTodo();
   }
 
   function generateMatrix() {
@@ -132,6 +131,7 @@ function MyCalendar1(props) {
           const rowItems = row.map((item, colIndex) => {
             return (
               <View
+                key={rowIndex}
                 style={{
                   flex: 1,
                   flexDirection: 'column',
@@ -154,38 +154,11 @@ function MyCalendar1(props) {
                     <Button
                       title="+"
                       onPress={() => {
-                        setModalVisibled(true);
+                        // setModalVisibled(true);
+                        props.navigation.navigate('ToDo');
                       }}
                     />
                   ) : null}
-
-                  <View>
-                    <Modal
-                      animationType="slide"
-                      transparent={false}
-                      visible={modalVisible}
-                      onRequestClose={() => {
-                        alert('Modal has been closed.');
-                      }}>
-                      <ToDo
-                        date={props.date}
-                        month={props.month}
-                        year={props.year}
-                      />
-                      <Button
-                        title="Hide Modal"
-                        onPress={() => {
-                          setModalVisible(!modalVisible);
-                        }}
-                        style={{
-                          justifyContent: 'center',
-                          marginTop: 50,
-                          padding: 20,
-                          backgroundColor: '#ffffff',
-                        }}
-                      />
-                    </Modal>
-                  </View>
                 </View>
               </View>
             );
@@ -215,6 +188,7 @@ const mapDispatchToProps = dispatch => ({
   changeMonth: payload => dispatch({type: 'CHANGE_MONTH', payload: payload}),
   changeYear: payload => dispatch({type: 'CHANGE_YEAR', payload: payload}),
   on_Press: payload => dispatch({type: 'ON_PRESS', payload: payload}),
+  updateTodo: () => dispatch({type: 'UPDATE_TODO'}),
 });
 
 export default connect(

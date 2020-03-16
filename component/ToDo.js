@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Button} from 'react-native';
+import {View, StyleSheet, Button, Text} from 'react-native';
 import SyncStorage from 'sync-storage';
 
 import t from 'tcomb-form-native';
+import {connect} from 'react-redux';
 
 const Form = t.form.Form;
 const User = t.struct({
@@ -50,23 +51,47 @@ const options = {
   stylesheet: formStyles,
 };
 
-export default class ToDo extends Component {
-  handleSubmit = () => {
+class ToDo extends Component {
+  handleSubmit = async () => {
     const value = this._form.getValue();
-    SyncStorage.set('todo', );
-    console.log('value: ', value);
+    // const todo1 = this.props.todo;
+    this.props.todo.push([
+      {
+        todo: value.todo,
+        color: value.color,
+        date: this.props.date,
+        month: this.props.month,
+        year: this.props.year,
+      },
+    ]);
+    // this.props.updateTodo({
+    //   todo: value.todo,
+    //   color: value.color,
+    //   date: this.props.date,
+    // });
+    await SyncStorage.set('todo', this.props.todo);
+    console.log(SyncStorage.get('todo'));
   };
 
   render() {
+    // console.log(this.props.route.params.date);
     return (
-      <View style={styles.container}>
-        <Form ref={c => (this._form = c)} type={User} options={options} />
-        <Button title="Submit!" onPress={this.handleSubmit} />
+      <View>
+        <View style={styles.container}>
+          <Form ref={c => (this._form = c)} type={User} options={options} />
+          <Button title="Submit!" onPress={this.handleSubmit} />
+          {this.props.todo.map((todo, index) => {
+            return (
+              <View key={index}>
+                <Text>{todo}</Text>
+              </View>
+            );
+          })}
+        </View>
       </View>
     );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
@@ -75,3 +100,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
 });
+
+const mapStateToProps = state => {
+  // console.log(state);
+  return state;
+};
+
+const mapDispatchToProps = dispatch => ({
+  updateTodo: () => dispatch({type: 'UPDATE_TODO'}),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ToDo);
