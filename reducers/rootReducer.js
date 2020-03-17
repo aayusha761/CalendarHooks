@@ -4,6 +4,7 @@ const initState = {
   date: fulldate.getDate(),
   month: fulldate.getMonth(),
   year: fulldate.getFullYear(),
+  tasksAvail: [],
 };
 
 const rootReducer = (state = initState, action) => {
@@ -39,6 +40,8 @@ const rootReducer = (state = initState, action) => {
         ...state,
         todo: temp1,
       };
+    case 'ADDTASK':
+      action.payload.map(val => state.tasksAvail.push(val));
     default:
       return state;
   }

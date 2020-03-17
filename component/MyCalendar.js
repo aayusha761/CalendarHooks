@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
-import {Text, Button, View} from 'react-native';
-import SyncStorage from 'sync-storage';
+import {Text, Button, View, TouchableHighlight} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {connect} from 'react-redux';
 import ToDo from './ToDo';
 
@@ -22,11 +22,19 @@ const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 function MyCalendar1(props) {
-  useEffect(() => {
-    (async () => {
-      await SyncStorage.init();
-    })();
-  });
+  // useEffect(() => {
+  //   (async () => {
+  //     await SyncStorage.init();
+  //   })();
+  // });
+  if (props.tasksAvail.length === 0) {
+    AsyncStorage.getItem('availTasks', (err, res) => {
+      if (res) {
+        props.ADDTASK(JSON.parse(res).gettasks);
+      }
+      console.log('err', err, 'res', res);
+    }).then(val => console.log('val', val));
+  }
 
   function changeMonth(n) {
     props.changeMonth(n);
@@ -39,10 +47,6 @@ function MyCalendar1(props) {
     if (!item.match && item !== -1) {
       props.on_Press(item);
     }
-  }
-
-  function updateTodo() {
-    props.updateTodo();
   }
 
   function generateMatrix() {
@@ -79,6 +83,7 @@ function MyCalendar1(props) {
   }
 
   const matrix = generateMatrix();
+  const task = props.tasksAvail;
 
   return (
     <View style={{flex: 1, justifyContent: 'space-around'}}>
@@ -131,7 +136,7 @@ function MyCalendar1(props) {
           const rowItems = row.map((item, colIndex) => {
             return (
               <View
-                key={rowIndex}
+                key={'' + rowIndex + colIndex}
                 style={{
                   flex: 1,
                   flexDirection: 'column',
@@ -139,6 +144,7 @@ function MyCalendar1(props) {
                   backgroundColor: rowIndex === 0 ? '#ddd' : '#fff',
                 }}>
                 <Text
+                  // key={'' + rowIndex + colIndex + 'T'}
                   style={{
                     textAlign: 'center',
                     color: colIndex === 0 ? '#a00' : '#000',
@@ -154,10 +160,22 @@ function MyCalendar1(props) {
                     <Button
                       title="+"
                       onPress={() => {
-                        // setModalVisibled(true);
                         props.navigation.navigate('ToDo');
                       }}
                     />
+                  ) : null}
+                </View>
+
+                <View>
+                  {item !== -1 && rowIndex !== 0 ? (
+                    <TouchableHighlight
+                      onPress={() => {
+                        props.navigation.navigate('TasksShow');
+                      }}>
+                      <Text style={{fontSize: 10, color: 'blue'}}>
+                        View More
+                      </Text>
+                    </TouchableHighlight>
                   ) : null}
                 </View>
               </View>
@@ -165,6 +183,7 @@ function MyCalendar1(props) {
           });
           return (
             <View
+              key={rowIndex}
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-around',
@@ -180,7 +199,6 @@ function MyCalendar1(props) {
 }
 
 const mapStateToProps = state => {
-  // console.log(state);
   return state;
 };
 
@@ -188,7 +206,7 @@ const mapDispatchToProps = dispatch => ({
   changeMonth: payload => dispatch({type: 'CHANGE_MONTH', payload: payload}),
   changeYear: payload => dispatch({type: 'CHANGE_YEAR', payload: payload}),
   on_Press: payload => dispatch({type: 'ON_PRESS', payload: payload}),
-  updateTodo: () => dispatch({type: 'UPDATE_TODO'}),
+  ADDTASK: val => dispatch({type: 'ADDTASK', payload: val}),
 });
 
 export default connect(
